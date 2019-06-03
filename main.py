@@ -43,8 +43,7 @@ def download():
             image = img['src']
             break
 
-        print(emojichar, image)
-
+        print(emojichar)
         if image and shortcode:
           urllib.urlretrieve(image, "downloads/%s~%s.%s" % (emojichar, shortcode, image.split(".")[-1]))
       except:
