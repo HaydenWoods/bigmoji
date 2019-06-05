@@ -2,6 +2,9 @@ from PIL import Image, ImageChops
 from bs4 import BeautifulSoup
 import requests
 import urllib
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def download():
   url = "https://emojipedia.org"
@@ -45,9 +48,12 @@ def download():
 
         print(emojichar)
         if image and shortcode:
-          urllib.urlretrieve(image, "downloads/%s~%s.%s" % (emojichar, shortcode, image.split(".")[-1]))
-      except:
-        pass
+          try:
+            urllib.urlretrieve(image, "downloads/%s~%s.%s" % (emojichar, shortcode, image.split(".")[-1]))
+          except:
+            urllib.request.urlretrieve(image, "downloads/%s~%s.%s" % (emojichar, shortcode, image.split(".")[-1]))
+      except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
   download()
