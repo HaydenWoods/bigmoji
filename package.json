@@ -1,0 +1,10 @@
+{
+  "name": "bigmoji",
+  "version": "1.0.0",
+  "scripts": {
+    "docker-build": "docker build -t bigmoji .",
+    "docker-tag": "docker tag bigmoji:latest docker.io/spazhead/bigmoji:$(git rev-parse HEAD)",
+    "docker-push": "docker push docker.io/spazhead/bigmoji:$(git rev-parse HEAD)",
+    "update-k8s": "helm upgrade --kube-context do-sgp1-spazhead-k8s --namespace hayden -f helm/bigmoji/values.yaml bigmoji-bot helm/bigmoji" 
+  }
+}

@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  tag: stable
+  repository: docker.io/spazhead/bigmoji
+  tag: 12a5c5cf41a5e5581fa63e0f55c779cc68b18e1d
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -19,7 +19,7 @@ service:
   type: ClusterIP
   port: 80
   targetPort: 80
-  
+
 ingress:
   enabled: false
   annotations: {}
