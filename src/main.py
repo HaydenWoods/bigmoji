@@ -49,7 +49,7 @@ async def generate(ctx, width, avw=0.5, pw=0.3, vw=0.2):
     os.mkdir("temp")
   except:
     pass
-    
+
   imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
   try:
     async with aiohttp.ClientSession() as session:
@@ -61,7 +61,7 @@ async def generate(ctx, width, avw=0.5, pw=0.3, vw=0.2):
   except Exception as e:
     print(e)
   
-  if width < 80:
+  if width < 160:
     msg = makeImage(imagefile, width, True, weight)
     l = msg.split("\n")
     linepermessage = 200//width
