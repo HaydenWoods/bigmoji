@@ -7,15 +7,16 @@ from PIL import Image, ImageChops
 
 def analyse():
   # Get files
-  downloadPath = "../downloads"
+  downloadPath = "downloads"
   files = [f for f in listdir(downloadPath) if isfile(join(downloadPath, f)) and f.split(".")[-1] == "png"]
   
   #Create a new datafile
+  savefile = None
   count = 0
   while True:
-    tempfilename = "datafile(%s).txt" % (str(count))
+    tempfilename = "datafile-%s.txt" % str(count)
     if isfile(tempfilename):
-      count+=1
+      count += 1
     else:
       savefile = open(tempfilename, "w+")
       break
