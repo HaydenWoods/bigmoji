@@ -33,3 +33,8 @@ spec:
               secretKeyRef:
                 name: {{ .Values.secrets.discord }}
                 key: DISCORD_TOKEN
+          - name: MAX_SIZE
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.configmap }}          
+                key: MAX_SIZE

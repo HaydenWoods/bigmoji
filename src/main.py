@@ -15,6 +15,7 @@ from PIL import Image, ImageChops
 import math
 
 client = commands.Bot(command_prefix='!')
+max_width = int(os.environ["MAX_WIDTH"])
 
 #Discord Events
 @client.event
@@ -62,7 +63,7 @@ async def generate(ctx, w, avw=0.5, pw=0.3, vw=0.2):
     except Exception as e:
       print(e)
     
-    if width < 160:
+    if width < max_width:
       await ctx.send("Gimme two secs...")
       msg = makeImage(imagefile, width, True, weight)
       l = msg.split("\n")
