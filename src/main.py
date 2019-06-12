@@ -14,6 +14,12 @@ import aiofiles
 from PIL import Image, ImageChops
 import math
 
+MAXCHARS = 200
+DEFAULTEMOJI = "⬜"
+AVERAGEWEIGHT = 0.5
+POPULARWEIGHT = 0.3
+VISIBLEWEIGHT = 0.2
+
 client = commands.Bot(command_prefix='!')
 max_width = int(os.environ["MAX_WIDTH"])
 
@@ -26,32 +32,36 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-  print(message)
   #Dont accept attachments from itself
   if message.author == client.user:
     return
 
+  #Keep at end
   await client.process_commands(message)
-  
 
 #Discord Commands
 @client.command()
-async def generate(ctx, w, avw=0.6, pw=0.3, vw=0.1):
+async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
+  #Error checking
+  err = ""
+  if int(width) > 80:
+    err = "You want me to crash, do yah?"
   if len(ctx.message.attachments) != 1:
-    await ctx.send("Mate... gonna have to give me an image")
+    err = "Mate... gonna have to give me an image"
+  if err != "":
+    await ctx.send(err)
     return
+  
+  width = int(w)
+  weight = (avw, pw, vw)
+  filename = str(datetime.datetime.utcnow().timestamp())
+  
+  try:
+    os.mkdir("temp")
+  except:
+    pass
 
   try:
-    image = ctx.message.attachments[0].url
-    width = int(w)
-    weight = (avw, pw, vw)
-
-    filename = str(datetime.datetime.utcnow().timestamp())
-    try:
-      os.mkdir("temp")
-    except:
-      pass
-
     imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
     try:
       async with aiohttp.ClientSession() as session:
@@ -75,24 +85,29 @@ async def generate(ctx, w, avw=0.6, pw=0.3, vw=0.1):
     else:
       await ctx.send("You want me to crash, do yah?")
   except Exception as e:
-    await ctx.send("Something went wrong, sorry...")
+    print(e)
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
   if not file:
     file = sys.argv[1]
-
   if not width:
     width = int(sys.argv[2])
+  if not weight:
+    weight = (AVERAGEWEIGHT, POPULARWEIGHT, VISIBLEWEIGHT)
 
-  output = ""
   datafile = open("datafile.txt", "r")
 
   image = Image.open(file)
-  image.thumbnail((width, (float(image.size[1])/image.size[0])*float(width)), Image.BICUBIC)
-  image.save("lastthing.png")
-  emojis = []
 
+  #Actual width / Desired width
+  scaleFactor = image.size[0] / width
+  height = math.floor(image.size[1] / scaleFactor)
+  
+  image.thumbnail((width, height), Image.BICUBIC)
+  image.save("lastthing.png")
+
+  emojis = []
   for line in datafile.readlines():
     s = line.split("|")
     em = s[0].split("~")[0]
@@ -106,18 +121,20 @@ def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
       "percentVis": float(s[4]),
     })
 
-  for h in range(int((float(image.size[1])/image.size[0])*float(width))):
+  output = []
+  for h in range(height):
+    row = []
     for w in range(width):
       pd = image.getpixel((w,h))
       bestemoji = None
       bestemojiscore = math.inf
 
+      #If pixel data is not useable give default emoji
       if len(pd) > 3 and pd[3] < 255:
-        output += "⬜"
+        row.append(DEFAULTEMOJI)
       else:
         for emoji in emojis:
-          bestemojis = []
-
+          #Calc score based on 3 factors with different weighting
           ac = emoji["average"]
           ascore = sqrt(abs(ac[0] - pd[0])**2 + abs(ac[1] - pd[1])**2 + abs(ac[2] - pd[2])**2)
           pc = emoji["popular"]
@@ -127,24 +144,19 @@ def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
 
           score = (pscore*weight[0]) + (ascore*weight[1]) + (pvscore*weight[2])
 
+          #Compare scores and reset variable
           if score < bestemojiscore:
             bestemojiscore = score
             bestemoji = emoji["emoji"]
 
         #Defaults to white square if there is no emoji
         if bestemoji:
-          output += bestemoji
+          row.append(bestemoji)
         else:
-          output += "⬜"
+          row.append(DEFAULTEMOJI)
+    output.append(row)
 
-      if w % width == width - 1:
-        output += "\n"
-
-  if not ret:
-    print(output)
-  else:
-    return output
-
+  return output
 
 if __name__ == '__main__':
   TOKEN = os.environ["DISCORD_TOKEN"]
