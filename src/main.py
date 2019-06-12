@@ -21,6 +21,7 @@ POPULARWEIGHT = 0.3
 VISIBLEWEIGHT = 0.2
 
 client = commands.Bot(command_prefix='!')
+max_width = int(os.environ["MAX_WIDTH"])
 
 #Discord Events
 @client.event
@@ -37,82 +38,57 @@ async def on_message(message):
 
   #Keep at end
   await client.process_commands(message)
-  
 
 #Discord Commands
 @client.command()
-async def generate(ctx, width=None, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
+async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
   #Error checking
   err = ""
-  debugMode = False
-  try:
-    if flag[0] != "-":
-      err = "That aint a flag"
-    else:
-      if flag[1:].lower() == "d":
-        debugMode = True
-  except:
-    pass
-
   if int(width) > 80:
     err = "You want me to crash, do yah?"
-  if len(ctx.message.attachments) != 1 and debugMode == False:
+  if len(ctx.message.attachments) != 1:
     err = "Mate... gonna have to give me an image"
   if err != "":
     await ctx.send(err)
     return
-
-  if debugMode:
-    image = "https://cdn.discordapp.com/attachments/586445030475169794/587253906384617493/Zoidberg-dr-zoidberg-9032703-1024-768.jpg"
-  else:
-    image = ctx.message.attachments[0].url
   
-  width = int(width)
+  width = int(w)
   weight = (avw, pw, vw)
-
   filename = str(datetime.datetime.utcnow().timestamp())
+  
   try:
     os.mkdir("temp")
   except:
     pass
-    
-  imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
+
   try:
-    async with aiohttp.ClientSession() as session:
-      async with session.get(image) as resp:
-        if resp.status == 200:
-          f = await aiofiles.open(imagefile, mode='wb')
-          await f.write(await resp.read())
-          await f.close()
+    imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
+    try:
+      async with aiohttp.ClientSession() as session:
+        async with session.get(image) as resp:
+          if resp.status == 200:
+            f = await aiofiles.open(imagefile, mode='wb')
+            await f.write(await resp.read())
+            await f.close()
+    except Exception as e:
+      print(e)
+    
+    if width < max_width:
+      await ctx.send("Gimme two secs...")
+      msg = makeImage(imagefile, width, True, weight)
+      l = msg.split("\n")
+      linepermessage = 200//width
+
+      print(l)
+      for i in range(int(len(l)/linepermessage)):
+        await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
+    else:
+      await ctx.send("You want me to crash, do yah?")
   except Exception as e:
     print(e)
-  
-  #Making image  
-  msg = makeImage(imagefile, width, weight)
-
-  lines = len(msg)
-  emojis = len(msg[0]) * lines
-  linesPerMessage = math.floor(MAXCHARS / width)
-  messages = math.floor(lines / linesPerMessage)
-  
-  #Printing image
-  if debugMode: #Debug
-    await ctx.send("Average Colour Weight: %s\nPopular Colour Weight: %s\nVisible Colour Weight: %s" % (avw, pw, vw))
-    await ctx.send("Emojis: %s\nLines: %s\nLines Per Message: %s\nMessages: %s" % (emojis, lines, linesPerMessage, messages))
-
-  output = []
-  for i in range(messages):
-    message = ""
-    for j in range(linesPerMessage):
-      message += "".join(msg[(i * linesPerMessage) + j])
-      #Do for all messages except last
-      if j != linesPerMessage - 1:
-        message += "\n"
-    await ctx.send(message)
-
 
 #Functions
-def makeImage(file=None, width=None, weight=None):
+def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
   if not file:
     file = sys.argv[1]
   if not width:
@@ -181,7 +157,6 @@ def makeImage(file=None, width=None, weight=None):
     output.append(row)
 
   return output
-
 
 if __name__ == '__main__':
   TOKEN = os.environ["DISCORD_TOKEN"]
