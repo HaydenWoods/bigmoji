@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: docker.io/spazhead/bigmoji
-  tag: 1a3896efca6d1244ebdf49c199493899bbd161bd
+  tag: 3682437f2d993821e87411723b5bd5c9ecd6d7b6
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -14,6 +14,8 @@ fullnameOverride: ""
 
 secrets:
   discord: discord
+
+configmap: bigmoji-conf
 
 service:
   type: ClusterIP

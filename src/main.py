@@ -15,6 +15,7 @@ from PIL import Image, ImageChops
 import math
 
 client = commands.Bot(command_prefix='!')
+max_width = int(os.environ["MAX_WIDTH"])
 
 #Discord Events
 @client.event
@@ -35,45 +36,49 @@ async def on_message(message):
 
 #Discord Commands
 @client.command()
-async def generate(ctx, width, avw=0.5, pw=0.3, vw=0.2):
+async def generate(ctx, w, avw=0.6, pw=0.3, vw=0.1):
   if len(ctx.message.attachments) != 1:
     await ctx.send("Mate... gonna have to give me an image")
     return
 
-  image = ctx.message.attachments[0].url
-  width = int(width)
-  weight = (avw, pw, vw)
-
-  filename = str(datetime.datetime.utcnow().timestamp())
   try:
-    os.mkdir("temp")
-  except:
-    pass
+    image = ctx.message.attachments[0].url
+    width = int(w)
+    weight = (avw, pw, vw)
+
+    filename = str(datetime.datetime.utcnow().timestamp())
+    try:
+      os.mkdir("temp")
+    except:
+      pass
+
+    imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
+    try:
+      async with aiohttp.ClientSession() as session:
+        async with session.get(image) as resp:
+          if resp.status == 200:
+            f = await aiofiles.open(imagefile, mode='wb')
+            await f.write(await resp.read())
+            await f.close()
+    except Exception as e:
+      print(e)
     
-  imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
-  try:
-    async with aiohttp.ClientSession() as session:
-      async with session.get(image) as resp:
-        if resp.status == 200:
-          f = await aiofiles.open(imagefile, mode='wb')
-          await f.write(await resp.read())
-          await f.close()
-  except Exception as e:
-    print(e)
-  
-  if width < 80:
-    msg = makeImage(imagefile, width, True, weight)
-    l = msg.split("\n")
-    linepermessage = 200//width
+    if width < max_width:
+      await ctx.send("Gimme two secs...")
+      msg = makeImage(imagefile, width, True, weight)
+      l = msg.split("\n")
+      linepermessage = 200//width
 
-    print(l)
-    for i in range(int(len(l)/linepermessage)):
-      await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
-  else:
-    await ctx.send("You want me to crash, do yah?")
+      print(l)
+      for i in range(int(len(l)/linepermessage)):
+        await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
+    else:
+      await ctx.send("You want me to crash, do yah?")
+  except Exception as e:
+    await ctx.send("Something went wrong, sorry...")
 
 #Functions
-def makeImage(file=None, width=None, ret=False, weight=(0.5,0.3,0.2)):
+def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
   if not file:
     file = sys.argv[1]
 
