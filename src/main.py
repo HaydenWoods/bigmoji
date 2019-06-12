@@ -36,7 +36,7 @@ async def on_message(message):
 
 #Discord Commands
 @client.command()
-async def generate(ctx, w, avw=0.5, pw=0.3, vw=0.2):
+async def generate(ctx, w, avw=0.6, pw=0.3, vw=0.1):
   if len(ctx.message.attachments) != 1:
     await ctx.send("Mate... gonna have to give me an image")
     return
@@ -78,7 +78,7 @@ async def generate(ctx, w, avw=0.5, pw=0.3, vw=0.2):
     await ctx.send("Something went wrong, sorry...")
 
 #Functions
-def makeImage(file=None, width=None, ret=False, weight=(0.5,0.3,0.2)):
+def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
   if not file:
     file = sys.argv[1]
 
