@@ -62,11 +62,12 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
   filename = str(datetime.datetime.utcnow().timestamp())
 
   try:
-    os.mkdir("temp")
+    if not os.path.isdir("temp"):
+      os.mkdir("temp")
   except:
     pass
 
-  #try:
+  try:
     imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
     try:
       async with aiohttp.ClientSession() as session:
@@ -78,7 +79,7 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
     except Exception as e:
       print(e)
     
-    if width < max_width:
+    if width < MAXWIDTH:
       await ctx.send("Gimme two secs...")
       msg = makeImage(imagefile, width, True, weight)
       l = msg.split("\n")
@@ -87,6 +88,8 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
         await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
     else:
       await ctx.send("You want me to crash, do yah?")
+  except Exception as e:
+    await ctx.send("Something bad happened idk.")
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
