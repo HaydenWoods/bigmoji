@@ -24,9 +24,6 @@ VISIBLEWEIGHT = 0.2
 MAXWIDTH = int(os.environ["MAX_WIDTH"])
 TOKEN = os.environ["DISCORD_TOKEN"]
 
-if TOKEN == None:
-  TOKEN = "NTg2MDgyOTQyNDY4NjIwMjkx.XQE_1w.5geXJCGU06dVf1SqssNczqc4DXE"
-
 client = commands.Bot(command_prefix='!')
 
 #Discord Events
@@ -90,34 +87,6 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
         await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
     else:
       await ctx.send("You want me to crash, do yah?")
-
-@client.command()
-def testEmojis(ctx):
-  datafile = open("datafile.txt", "r")
-
-  image = Image.open(file)
-
-  #Actual width / Desired width
-  scaleFactor = image.size[0] / width
-  height = math.floor(image.size[1] / scaleFactor)
-  
-  image.thumbnail((width, height), Image.BICUBIC)
-  image.save("lastthing.png")
-
-  emojis = []
-  for line in datafile.readlines():
-    #e.g. 📶~signal_strength.png|59,136,195|96,158,206|0.75|0.98
-    #e.g. NAME|POPULAR-COLOR|AVERAGE-COLOR|%POPULAR|%VISIBLE 
-    s = line.split("|")
-    #Append to emojis list
-    emojis.append({
-      "emoji": s[0].split("~")[0],
-      "shortcode": ".".join(s[0].split("~")[1].split(".")[0:-1]),
-      "popular": list(map(int, s[1].split(","))),
-      "average": list(map(int, s[2].split(","))),
-      "percentPop": float(s[3]),
-      "percentVis": float(s[4]),
-    })
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
