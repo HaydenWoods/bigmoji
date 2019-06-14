@@ -106,6 +106,8 @@ def testEmojis(ctx):
 
   emojis = []
   for line in datafile.readlines():
+    #e.g. 📶~signal_strength.png|59,136,195|96,158,206|0.75|0.98
+    #e.g. NAME|POPULAR-COLOR|AVERAGE-COLOR|%POPULAR|%VISIBLE 
     s = line.split("|")
     #Append to emojis list
     emojis.append({
