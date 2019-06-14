@@ -14,14 +14,20 @@ import aiofiles
 from PIL import Image, ImageChops
 import math
 
+#Constant Values
 MAXCHARS = 200
 DEFAULTEMOJI = "⬜"
 AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.3
 VISIBLEWEIGHT = 0.2
 
+MAXWIDTH = int(os.environ["MAX_WIDTH"])
+TOKEN = os.environ["DISCORD_TOKEN"]
+
+if TOKEN == None:
+  TOKEN = "NTg2MDgyOTQyNDY4NjIwMjkx.XQE_1w.5geXJCGU06dVf1SqssNczqc4DXE"
+
 client = commands.Bot(command_prefix='!')
-max_width = int(os.environ["MAX_WIDTH"])
 
 #Discord Events
 @client.event
@@ -42,9 +48,11 @@ async def on_message(message):
 #Discord Commands
 @client.command()
 async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
+  width = int(w)
+
   #Error checking
   err = ""
-  if int(width) > 80:
+  if width > 80:
     err = "You want me to crash, do yah?"
   if len(ctx.message.attachments) != 1:
     err = "Mate... gonna have to give me an image"
@@ -52,16 +60,16 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
     await ctx.send(err)
     return
   
-  width = int(w)
+  image = ctx.message.attachments[0].url
   weight = (avw, pw, vw)
   filename = str(datetime.datetime.utcnow().timestamp())
-  
+
   try:
     os.mkdir("temp")
   except:
     pass
 
-  try:
+  #try:
     imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
     try:
       async with aiohttp.ClientSession() as session:
@@ -78,17 +86,39 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
       msg = makeImage(imagefile, width, True, weight)
       l = msg.split("\n")
       linepermessage = 200//width
-
-      print(l)
       for i in range(int(len(l)/linepermessage)):
         await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
     else:
       await ctx.send("You want me to crash, do yah?")
-  except Exception as e:
-    print(e)
+
+@client.command()
+def testEmojis(ctx):
+  datafile = open("datafile.txt", "r")
+
+  image = Image.open(file)
+
+  #Actual width / Desired width
+  scaleFactor = image.size[0] / width
+  height = math.floor(image.size[1] / scaleFactor)
+  
+  image.thumbnail((width, height), Image.BICUBIC)
+  image.save("lastthing.png")
+
+  emojis = []
+  for line in datafile.readlines():
+    s = line.split("|")
+    #Append to emojis list
+    emojis.append({
+      "emoji": s[0].split("~")[0],
+      "shortcode": ".".join(s[0].split("~")[1].split(".")[0:-1]),
+      "popular": list(map(int, s[1].split(","))),
+      "average": list(map(int, s[2].split(","))),
+      "percentPop": float(s[3]),
+      "percentVis": float(s[4]),
+    })
 
 #Functions
-def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
+def makeImage(file=None, width=None, ret=False, weight=None):
   if not file:
     file = sys.argv[1]
   if not width:
@@ -121,9 +151,8 @@ def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
       "percentVis": float(s[4]),
     })
 
-  output = []
+  output = ""
   for h in range(height):
-    row = []
     for w in range(width):
       pd = image.getpixel((w,h))
       bestemoji = None
@@ -131,7 +160,7 @@ def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
 
       #If pixel data is not useable give default emoji
       if len(pd) > 3 and pd[3] < 255:
-        row.append(DEFAULTEMOJI)
+        output += DEFAULTEMOJI
       else:
         for emoji in emojis:
           #Calc score based on 3 factors with different weighting
@@ -151,13 +180,14 @@ def makeImage(file=None, width=None, ret=False, weight=(0.6,0.3,0.1)):
 
         #Defaults to white square if there is no emoji
         if bestemoji:
-          row.append(bestemoji)
+          output += bestemoji
         else:
-          row.append(DEFAULTEMOJI)
-    output.append(row)
+          output += DEFAULTEMOJI
+
+        if w % width == width - 1:
+          output += "\n"
 
   return output
 
 if __name__ == '__main__':
-  TOKEN = os.environ["DISCORD_TOKEN"]
   client.run(TOKEN)
