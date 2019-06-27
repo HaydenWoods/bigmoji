@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: docker.io/spazhead/bigmoji
-  tag: d3c5ec035638ab67292bbc5ad7b8ead8936a7486
+  tag: a9d93647e30682e3854a6939a51cdf815cf1c34f
   pullPolicy: IfNotPresent
 
 nameOverride: ""

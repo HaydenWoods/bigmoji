@@ -91,6 +91,15 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
   except Exception as e:
     await ctx.send("Something bad happened idk.")
 
+@client.command()
+async def spam(ctx, message, amount):
+  amount = int(amount)
+  times = amount // 20
+  remainder = amount - (times * 20)
+  for i in range(times + 1):
+    await ctx.send((message+"\n") * 20)
+  await ctx.send((message+"\n") * remainder)
+
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
   if not file:
