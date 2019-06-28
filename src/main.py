@@ -62,7 +62,7 @@ async def help(ctx):
   1. Upload an image
   2. In the comment add %sgenerate <WIDTH>
       a. Max width is 80
-      b. Usually 40 - 70 looks good
+      b. Usually 30 - 70 looks good
   3. Send the image
 
   **OPTIONAL**
