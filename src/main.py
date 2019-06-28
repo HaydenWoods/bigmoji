@@ -11,19 +11,22 @@ from discord.ext import commands
 import datetime
 import aiohttp        
 import aiofiles
+import asyncio
 from PIL import Image, ImageChops
 import math
 
 #Constant Values
 MAXCHARS = 200
 DEFAULTEMOJI = "⬜"
-PREFIX = ":b:"
+PREFIX = "🅱"
 AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.3
 VISIBLEWEIGHT = 0.2
 
-MAXWIDTH = int(os.environ["MAX_WIDTH"])
-TOKEN = os.environ["DISCORD_TOKEN"]
+#MAXWIDTH = int(os.environ["MAX_WIDTH"])
+MAXWIDTH = 80
+#TOKEN = os.environ["DISCORD_TOKEN"]
+TOKEN = "NTg2MDgyOTQyNDY4NjIwMjkx.XRXBOA._bRyhR2f5z0X9IEtKbnM5aR0Omo"
 
 activeChannels = []
 client = commands.Bot(command_prefix=PREFIX)
@@ -32,8 +35,7 @@ client.remove_command("help")
 #Discord Events
 @client.event
 async def on_ready():
-  game = discord.Game("games just like Chris smh")
-  await client.change_presence(status=discord.Status.online, activity=game)
+  await client.change_presence(status=discord.Status.dnd)
   print("Logged in as %s (%s)" % (client.user.name, client.user.id))
 
 @client.event
@@ -50,36 +52,36 @@ async def on_message(message):
 async def help(ctx):
   err = ""
   if ctx.message.channel in activeChannels:
-    err = "No."
+    err = "No, I don't think I will."
   if err != "":
     await ctx.send(err)
     return
 
   await ctx.send("""
-  **BIGMOJI BOT HELP**
+  __**BIGMOJI BOT HELP**__
 
   **GENERAL**
   1. Upload an image
-  2. In the comment add %sgenerate <width>
+  2. In the comment add %sgenerate <WIDTH>
       a. Max width is 80
       b. Usually 40 - 70 looks good
   3. Send the image
 
   **OPTIONAL**
-  !generate <width> <avw> <pw> <vw>
+  %sgenerate *<WIDTH> <AVW> <PW> <VW>*
 
+  **EXPLANATION**
   When figuring out what emoji should be used for each pixel three parameters are taken into account:
-  Average Colour (AVW): The average colour that is present in the emoji
-  Popular Colour (PW): The most popular colour that is present in the emoji
-  Visible (VW): The percentage amount of pixels that are not transparent in the emoji
+  **Average Colour (AVW):** The average colour that is present in the emoji
+  **Popular Colour (PW):** The most popular colour that is present in the emoji
+  **Visible Pixels (VW):** The percentage amount of pixels that are not transparent in the emoji
 
-  You can assign a weight for each of these parameters. The default is:
-  AVW: 0.5
-  PW: 0.3
-  VW: 0.2
-
-  They must add up to 1.0 exactly.
-  """ % PREFIX)
+  You can assign a weight for each of these parameters(they must add up to 1.0 exactly). The default is:
+  **AVW:** 0.5
+  **PW:** 0.3
+  **VW:** 0.2
+  This means that the Average Colour has a higher effect on what emoji is chosen than the Percent of Visible Pixels in the emoji.
+  """ % (PREFIX, PREFIX))
 
 @client.command(pass_context = True)
 async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
@@ -88,21 +90,20 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
   #Error checking
   err = ""
   if ctx.message.channel in activeChannels:
-    err = "No."
+    err = "No, I don't think I will."
   if width > 80:
     err = "You want me to crash, do yah?"
   if len(ctx.message.attachments) != 1:
     err = "Mate... gonna have to give me an image"
-  if (float(avw) + float(pw) + float(vw)) == 1.0:
-    err = "Can you add to 1.0, go to year 1 boi"
+  if (float(avw) + float(pw) + float(vw)) != 1.0:
+    err = "Can you add to 1. Go back to year 2 silly man"
   if err != "":
-    await ctx.send(err)
+    errorMessage = await ctx.send(err)
+    await errorMessage.delete(delay=10.0)
     return
   
   #Add it to the active channels
   activeChannels.append(ctx.message.channel)
-
-  print(activeChannels)
 
   image = ctx.message.attachments[0].url
   weight = (avw, pw, vw)
@@ -115,7 +116,7 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
     pass
 
   try:
-    imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])  
+    imagefile = "temp/%s.%s" % (filename, image.split(".")[-1])
     try:
       async with aiohttp.ClientSession() as session:
         async with session.get(image) as resp:
@@ -125,7 +126,9 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
             await f.close()
     except Exception as e:
       print(e)
-    
+      
+    await ctx.message.delete()
+
     await ctx.send("Gimme two secs...")
     msg = makeImage(imagefile, width, True, weight)
     l = msg.split("\n")
@@ -133,11 +136,11 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
     for i in range(int(len(l)/linepermessage)):
       await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
   except Exception as e:
+    print(e)
     await ctx.send("Something bad happened idk.")
 
   #Remove from active channels
   activeChannels.remove(ctx.message.channel)
-  print(activeChannels)
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
