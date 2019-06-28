@@ -2,7 +2,9 @@
 
 ## Usage
 ### Command
+```
 :b:generate [WIDTH] [AVW] [PW] [VW]
+```
 
 1. Upload an image
 2. In the comment add the command with chosen parameters
