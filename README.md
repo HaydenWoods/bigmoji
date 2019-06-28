@@ -6,18 +6,16 @@
 :b:generate [WIDTH] [AVW] [PW] [VW]
 ```
 
+### EXPLANATION
 1. Upload an image
 2. In the comment add the command with chosen parameters
 3. Send the image
 
-### EXPLANATION
-You must always supply the width for the emoji image.
-**Width:** The width that the image will be in emojis (MAX: 80) 
-
-When figuring out what emoji should be used for each pixel three parameters are taken into account:\
-**Average Colour (AVW):** The average colour that is present in the emoji\
-**Popular Colour (PW):** The most popular colour that is present in the emoji\
-**Visible Pixels (VW):** The percentage amount of pixels that are not transparent in the emoji
+### Parameters
+**Width (REQUIRED):** The width that the image will be in emojis (MAX: 80) 
+**Average Colour (AVW) (DEFAULT: 0.5):** The average colour that is present in the emoji\
+**Popular Colour (PW) (DEFUALT: 0.3):** The most popular colour that is present in the emoji\
+**Visible Pixels (VW) (DEFAULT: 0.2):** The percentage amount of pixels that are not transparent in the emoji
 
 You can assign a weight for each of these parameters(they must add up to 1.0 exactly). The default is:\
 **AVW:** 0.5\
