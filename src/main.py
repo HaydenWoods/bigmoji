@@ -17,7 +17,7 @@ import math
 #Constant Values
 MAXCHARS = 200
 DEFAULTEMOJI = "⬜"
-PREFIX = "🅱️"
+PREFIX = ":b:"
 AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.3
 VISIBLEWEIGHT = 0.2
