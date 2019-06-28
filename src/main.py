@@ -93,6 +93,8 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
     err = "You want me to crash, do yah?"
   if len(ctx.message.attachments) != 1:
     err = "Mate... gonna have to give me an image"
+  if (float(avw) + float(pw) + float(vw)) == 1.0:
+    err = "Can you add to 1.0, go to year 1 boi"
   if err != "":
     await ctx.send(err)
     return
