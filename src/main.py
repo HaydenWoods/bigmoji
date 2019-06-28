@@ -24,7 +24,9 @@ VISIBLEWEIGHT = 0.2
 MAXWIDTH = int(os.environ["MAX_WIDTH"])
 TOKEN = os.environ["DISCORD_TOKEN"]
 
-client = commands.Bot(command_prefix='!')
+activeChannels = []
+client = commands.Bot(command_prefix='#')
+client.remove_command("help")
 
 #Discord Events
 @client.event
@@ -44,11 +46,48 @@ async def on_message(message):
 
 #Discord Commands
 @client.command()
-async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
+async def help(ctx):
+  err = ""
+  if ctx.message.channel in activeChannels:
+    err = "No."
+  if err != "":
+    await ctx.send(err)
+    return
+
+  await ctx.send("""
+  **BIGMOJI BOT HELP**
+
+  **GENERAL**
+  1. Upload an image
+  2. In the comment add !generate <width>
+      a. Max width is 80
+      b. Usually 40 - 70 looks good
+  3. Send the image
+
+  **OPTIONAL**
+  !generate <width> <avw> <pw> <vw>
+
+  When figuring out what emoji should be used for each pixel three parameters are taken into account:
+  Average Colour (AVW): The average colour that is present in the emoji
+  Popular Colour (PW): The most popular colour that is present in the emoji
+  Visible (VW): The percentage amount of pixels that are not transparent in the emoji
+
+  You can assign a weight for each of these parameters. The default is:
+  AVW: 0.5
+  PW: 0.3
+  VW: 0.2
+
+  They must add up to 1.0 exactly.
+  """)
+
+@client.command(pass_context = True)
+async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
   width = int(w)
 
   #Error checking
   err = ""
+  if ctx.message.channel in activeChannels:
+    err = "No."
   if width > 80:
     err = "You want me to crash, do yah?"
   if len(ctx.message.attachments) != 1:
@@ -57,6 +96,11 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
     await ctx.send(err)
     return
   
+  #Add it to the active channels
+  activeChannels.append(ctx.message.channel)
+
+  print(activeChannels)
+
   image = ctx.message.attachments[0].url
   weight = (avw, pw, vw)
   filename = str(datetime.datetime.utcnow().timestamp())
@@ -79,26 +123,18 @@ async def generate(ctx, w, flag=None, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VI
     except Exception as e:
       print(e)
     
-    if width < MAXWIDTH:
-      await ctx.send("Gimme two secs...")
-      msg = makeImage(imagefile, width, True, weight)
-      l = msg.split("\n")
-      linepermessage = 200//width
-      for i in range(int(len(l)/linepermessage)):
-        await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
-    else:
-      await ctx.send("You want me to crash, do yah?")
+    await ctx.send("Gimme two secs...")
+    msg = makeImage(imagefile, width, True, weight)
+    l = msg.split("\n")
+    linepermessage = 200//width
+    for i in range(int(len(l)/linepermessage)):
+      await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
   except Exception as e:
     await ctx.send("Something bad happened idk.")
 
-@client.command()
-async def spam(ctx, message, amount):
-  amount = int(amount)
-  times = amount // 20
-  remainder = amount - (times * 20)
-  for i in range(times + 1):
-    await ctx.send((message+"\n") * 20)
-  await ctx.send((message+"\n") * remainder)
+  #Remove from active channels
+  activeChannels.remove(ctx.message.channel)
+  print(activeChannels)
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
