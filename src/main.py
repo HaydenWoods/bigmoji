@@ -16,7 +16,7 @@ from PIL import Image, ImageChops
 import math
 
 #Constant Values
-MAXCHARS = 200
+MAXCHARS = 198
 DEFAULTEMOJI = "⬜"
 PREFIX = "🅱"
 AVERAGEWEIGHT = 0.5
@@ -129,10 +129,15 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
 
     await ctx.send("Gimme two secs...")
     msg = makeImage(imagefile, width, True, weight)
-    l = msg.split("\n")
-    linepermessage = 200//width
-    for i in range(int(len(l)/linepermessage)):
-      await ctx.send("\n".join(l[i*linepermessage:(i+1)*linepermessage]))
+    lines = msg.split("\n")
+    linepermessage = MAXCHARS//width
+    remainingLines = len(lines) - (int(len(lines)/linepermessage) * linepermessage)
+
+    #Send the majority
+    for i in range(int(len(lines)/linepermessage)):
+      await ctx.send("\n".join(lines[i*linepermessage:(i+1)*linepermessage]))
+    #Send the remaining
+    await ctx.send("\n".join(lines[len(lines)-remainingLines:len(lines)]))
   except Exception as e:
     print(e)
     await ctx.send("Something bad happened idk.")
@@ -202,7 +207,7 @@ def makeImage(file=None, width=None, ret=False, weight=None):
             bestemoji = emoji["emoji"]
 
         #Defaults to white square if there is no emoji
-        if bestemoji:
+        if bestemoji != None:
           output += bestemoji
         else:
           output += DEFAULTEMOJI
