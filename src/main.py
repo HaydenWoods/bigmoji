@@ -17,6 +17,7 @@ import math
 #Constant Values
 MAXCHARS = 200
 DEFAULTEMOJI = "⬜"
+PREFIX = "🅱️"
 AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.3
 VISIBLEWEIGHT = 0.2
@@ -25,13 +26,13 @@ MAXWIDTH = int(os.environ["MAX_WIDTH"])
 TOKEN = os.environ["DISCORD_TOKEN"]
 
 activeChannels = []
-client = commands.Bot(command_prefix='#')
+client = commands.Bot(command_prefix=PREFIX)
 client.remove_command("help")
 
 #Discord Events
 @client.event
 async def on_ready():
-  game = discord.Game("games just like Karen smh")
+  game = discord.Game("games just like Chris smh")
   await client.change_presence(status=discord.Status.online, activity=game)
   print("Logged in as %s (%s)" % (client.user.name, client.user.id))
 
@@ -59,7 +60,7 @@ async def help(ctx):
 
   **GENERAL**
   1. Upload an image
-  2. In the comment add !generate <width>
+  2. In the comment add %sgenerate <width>
       a. Max width is 80
       b. Usually 40 - 70 looks good
   3. Send the image
@@ -78,7 +79,7 @@ async def help(ctx):
   VW: 0.2
 
   They must add up to 1.0 exactly.
-  """)
+  """ % PREFIX)
 
 @client.command(pass_context = True)
 async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
