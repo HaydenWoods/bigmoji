@@ -18,4 +18,4 @@
 **Visible Pixels (VW) (DEFAULT: 0.2):** The percentage amount of pixels that are not transparent in the emoji
 
 ## Installation
-https://discordapp.com/oauth2/authorize?client_id=585850492882780164&scope=bot&permissions=75776
+https://discordapp.com/oauth2/authorize?client_id=585850492882780164&scope=bot&permissions=75840
