@@ -140,7 +140,6 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
     await ctx.send("\n".join(lines[len(lines)-remainingLines:len(lines)]))
   except Exception as e:
     print(e)
-    await ctx.send("Something bad happened idk.")
 
   #Remove from active channels
   activeChannels.remove(ctx.message.channel)
@@ -157,6 +156,7 @@ def makeImage(file=None, width=None, ret=False, weight=None):
   datafile = open("datafile.txt", "r")
 
   image = Image.open(file)
+  image = image.convert('RGB')
 
   #Actual width / Desired width
   scaleFactor = image.size[0] / width
