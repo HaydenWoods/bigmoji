@@ -19,6 +19,7 @@ import math
 MAXCHARS = 198
 DEFAULTEMOJI = "⬜"
 PREFIX = "🅱"
+WIDTH = 50
 AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.3
 VISIBLEWEIGHT = 0.2
@@ -62,13 +63,14 @@ async def help(ctx):
   1. Upload an image
   2. In the comment add %sgenerate <WIDTH>
       a. Max width is 80
-      b. Usually 30 - 70 looks good
+      b. Usually 30 - 70 looks good (50 is the default)
   3. Send the image
 
   **OPTIONAL**
   %sgenerate *<WIDTH> <AVW> <PW> <VW>*
 
   **EXPLANATION**
+  **Width (WIDTH): Is the width in emojis that the image will be converted into. **
   When figuring out what emoji should be used for each pixel three parameters are taken into account:
   **Average Colour (AVW):** The average colour that is present in the emoji
   **Popular Colour (PW):** The most popular colour that is present in the emoji
@@ -82,7 +84,7 @@ async def help(ctx):
   """ % (PREFIX, PREFIX))
 
 @client.command(pass_context = True)
-async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
+async def generate(ctx, w=WIDTH, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT):
   width = int(w)
 
   #Error checking
@@ -96,8 +98,7 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
   if (float(avw) + float(pw) + float(vw)) != 1.0:
     err = "Can you add to 1. Go back to year 2 silly man"
   if err != "":
-    errorMessage = await ctx.send(err)
-    await errorMessage.delete(delay=10.0)
+    sendError(err)
     return
   
   #Add it to the active channels
@@ -137,21 +138,27 @@ async def generate(ctx, w, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLEWEIGHT
     for i in range(int(len(lines)/linepermessage)):
       await ctx.send("\n".join(lines[i*linepermessage:(i+1)*linepermessage]))
     #Send the remaining
-    await ctx.send("\n".join(lines[len(lines)-remainingLines:len(lines)]))
+    if (remainingLines > 0):
+      await ctx.send("\n".join(lines[len(lines)-remainingLines:len(lines)]))
   except Exception as e:
     print(e)
+    sendError("Something went wrong, big hmmm.")
 
   #Remove from active channels
   activeChannels.remove(ctx.message.channel)
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
+  err = ""
   if not file:
-    file = sys.argv[1]
+    err = "No file"
   if not width:
-    width = int(sys.argv[2])
+    err = "No width"
   if not weight:
-    weight = (AVERAGEWEIGHT, POPULARWEIGHT, VISIBLEWEIGHT)
+    err = "No weights"
+  if err != "":
+    sendError(err)
+    return
 
   datafile = open("datafile.txt", "r")
 
@@ -216,6 +223,11 @@ def makeImage(file=None, width=None, ret=False, weight=None):
           output += "\n"
 
   return output
+
+async def sendError(err):
+  errorMessage = await ctx.send(err)
+  await errorMessage.delete(delay=10.0)
+
 
 if __name__ == '__main__':
   client.run(TOKEN)
