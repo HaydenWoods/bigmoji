@@ -24,8 +24,10 @@ AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.4
 VISIBLEWEIGHT = 0.1
 
-MAXWIDTH = int(os.environ["MAX_WIDTH"])
-TOKEN = os.environ["DISCORD_TOKEN"]
+#MAXWIDTH = int(os.environ["MAX_WIDTH"])
+MAXWIDTH = 80
+#TOKEN = os.environ["DISCORD_TOKEN"]
+TOKEN = "NTg2MDgyOTQyNDY4NjIwMjkx.XSbSoQ.ZEvDxzlYcyw2LLBTiG8AeP2FUoM"
 
 activeChannels = []
 client = commands.Bot(command_prefix=PREFIX)
@@ -34,7 +36,7 @@ client.remove_command("help")
 #Discord Events
 @client.event
 async def on_ready():
-  await client.change_presence(status=discord.Status.idle)
+  await client.change_presence(status=discord.Status.dnd)
   print("Logged in as %s (%s)" % (client.user.name, client.user.id))
 
 @client.event
@@ -146,10 +148,6 @@ async def generate(ctx, w=WIDTH, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLE
 
   #Remove from active channels
   activeChannels.remove(ctx.message.channel)
-
-@bot.command(pass_context = True)
-async def kick(ctx, user: discord.User):
-    await bot.kick(user)
 
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
