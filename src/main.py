@@ -21,8 +21,8 @@ DEFAULTEMOJI = "⬜"
 PREFIX = "🅱"
 WIDTH = 50
 AVERAGEWEIGHT = 0.5
-POPULARWEIGHT = 0.3
-VISIBLEWEIGHT = 0.2
+POPULARWEIGHT = 0.4
+VISIBLEWEIGHT = 0.1
 
 MAXWIDTH = int(os.environ["MAX_WIDTH"])
 TOKEN = os.environ["DISCORD_TOKEN"]
@@ -34,7 +34,7 @@ client.remove_command("help")
 #Discord Events
 @client.event
 async def on_ready():
-  await client.change_presence(status=discord.Status.dnd)
+  await client.change_presence(status=discord.Status.idle)
   print("Logged in as %s (%s)" % (client.user.name, client.user.id))
 
 @client.event
@@ -147,6 +147,10 @@ async def generate(ctx, w=WIDTH, avw=AVERAGEWEIGHT, pw=POPULARWEIGHT, vw=VISIBLE
   #Remove from active channels
   activeChannels.remove(ctx.message.channel)
 
+@bot.command(pass_context = True)
+async def kick(ctx, user: discord.User):
+    await bot.kick(user)
+
 #Functions
 def makeImage(file=None, width=None, ret=False, weight=None):
   err = ""
@@ -213,7 +217,7 @@ def makeImage(file=None, width=None, ret=False, weight=None):
             bestemojiscore = score
             bestemoji = emoji["emoji"]
 
-        #Defaults to white square if there is no emoji
+        #Defaults to white square if there is no emoji icon
         if bestemoji != None:
           output += bestemoji
         else:
