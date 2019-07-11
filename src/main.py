@@ -217,7 +217,7 @@ def makeImage(file=None, width=None, ret=False, weight=None):
             bestemojiscore = score
             bestemoji = emoji["emoji"]
 
-        #Defaults to white square if there is no emoji icon
+        #Defaults to white square if there is no emoji
         if bestemoji != None:
           output += bestemoji
         else:
