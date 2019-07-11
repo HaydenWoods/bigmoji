@@ -24,10 +24,8 @@ AVERAGEWEIGHT = 0.5
 POPULARWEIGHT = 0.4
 VISIBLEWEIGHT = 0.1
 
-#MAXWIDTH = int(os.environ["MAX_WIDTH"])
-MAXWIDTH = 80
-#TOKEN = os.environ["DISCORD_TOKEN"]
-TOKEN = "NTg2MDgyOTQyNDY4NjIwMjkx.XSbSoQ.ZEvDxzlYcyw2LLBTiG8AeP2FUoM"
+MAXWIDTH = int(os.environ["MAX_WIDTH"])
+TOKEN = os.environ["DISCORD_TOKEN"]
 
 activeChannels = []
 client = commands.Bot(command_prefix=PREFIX)
