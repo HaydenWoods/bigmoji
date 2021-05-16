@@ -4,6 +4,7 @@ const emojis = require("../data/emojis");
 
 const { getColorPercentDiff } = require("./colors");
 const { chunkArray } = require("./arrays");
+const { sleep } = require("./general");
 
 const WEIGHT_POPULAR_COLOR = 0.75;
 const WEIGHT_AVERAGE_COLOR = 0.15;
@@ -89,11 +90,24 @@ const convertImageToEmojis = async ({ url, options }) => {
   });
 }
 
-const sendEmojis = ({ imageEmojis, width, channel }) => {
-  const messageChunks = chunkArray(imageEmojis, width);
-  messageChunks.forEach((chunk) => {
-    channel.send(chunk.map(emoji => emoji.emoji).join(""));
-  });
+const sendEmojis = async ({ imageEmojis, width, channel }) => {
+  const lines = chunkArray(imageEmojis, width);
+  
+  for (let i = 0; i < lines.length; i++) {
+    await sleep(1000);
+
+    const emojiLine = lines[i];
+    const isLast = lines.length - 1 === i;
+
+    await channel.send(emojiLine.map(emoji => emoji.emoji).join("")).then(async (message) => {
+      if (isLast) {
+        await message.react("🇩");
+        await message.react("🇴");
+        await message.react("🇳");
+        await message.react("🇪");
+      }
+    });
+  }
 }
 
 module.exports = {

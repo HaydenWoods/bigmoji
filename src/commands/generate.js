@@ -62,7 +62,7 @@ module.exports = {
     }
 
     if (!isMock) {
-      sendEmojis({ imageEmojis, width: desiredWidth, channel: message.channel });
+      await sendEmojis({ imageEmojis, width: desiredWidth, channel: message.channel });
     }
 	},
 };
