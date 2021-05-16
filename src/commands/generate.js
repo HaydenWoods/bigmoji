@@ -8,7 +8,7 @@ const DEFAULT_DESIRED_WIDTH = 50;
 
 module.exports = {
 	name: "generate",
-  aliases: [""],
+  aliases: ["", "g", "gen", "generate"],
 	description: "Generates a BigMoji based on the attached image of the message.",
   execute: async (message, messageArgs, messageFlags) => {
     const isDebug = messageFlags.includes("-debug") || messageFlags.includes("-d");
