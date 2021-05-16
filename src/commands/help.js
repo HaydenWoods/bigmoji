@@ -13,7 +13,7 @@ module.exports = {
 		.addFields([
 			{ name: "help", value: "You are here." },
 			{ name: "ping", value: "Ping the bot." },
-			{ name: "generate [size] -(debug|mock)", value: "When sent along with an attached image, will convert it into a series of messages that will roughly resemble in image. If you have trouble seeing the entire picture (some of the lines may wrap), try zooming out with `ctrl -`." },
+			{ name: "generate [size] -(debug|mock)", value: "When sent along with an attached image, will convert it into a series of messages that will roughly resemble the image. If you have trouble seeing the entire picture (some of the lines may wrap), try zooming out with `ctrl -`." },
 		]);
 
 		message.channel.send(debugEmbed);
