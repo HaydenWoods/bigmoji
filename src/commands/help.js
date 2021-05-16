@@ -7,7 +7,7 @@ module.exports = {
 	execute(message) {
 		const debugEmbed = new Discord.MessageEmbed()
 		.setTitle(":b: BigMoji")
-		.setDescription("A Discord bot to create recreations of images using emojis.")
+		.setDescription("A Discord bot to recreate images using emojis.")
 		.setAuthor("Hayden Woods")
 		.setColor("#DC2D44")
 		.addFields([
