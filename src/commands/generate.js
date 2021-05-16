@@ -15,10 +15,10 @@ module.exports = {
     const isMock = messageFlags.includes("-mock") || messageFlags.includes("-m");
 
     const desiredWidth = messageArgs[0] || DEFAULT_DESIRED_WIDTH;
-    const messageImage = message.attachments.array()[0];
 
+    const messageImage = message.attachments.array()[0];
     if (!messageImage) {
-      return message.channel.send("Gonna have to send an image with that...");
+      return;
     }
 
     BigMojiLog.info("Generating BigMoji");
